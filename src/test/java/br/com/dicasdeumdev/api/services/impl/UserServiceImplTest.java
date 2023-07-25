@@ -3,6 +3,7 @@ package br.com.dicasdeumdev.api.services.impl;
 import br.com.dicasdeumdev.api.domain.User;
 import br.com.dicasdeumdev.api.domain.dto.UserDTO;
 import br.com.dicasdeumdev.api.repositories.UserRepository;
+import br.com.dicasdeumdev.api.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,9 +54,32 @@ class UserServiceImplTest {
     assertEquals(NAME, response.getName());
     assertEquals(EMAIL, response.getEmail());
   }
+  @Test
+  void whenFindByIdThenReturnAnObjectNotFoundException() {
+    when(repository.findById(anyInt())).thenThrow(new ObjectNotFoundException("Objeto não encontrado"));
+
+    try{
+      service.findById(ID);
+    }catch(Exception ex) {
+      assertEquals(ObjectNotFoundException.class, ex.getClass());
+      assertEquals("Objeto não encontrado", ex.getMessage());
+    }
+  }
 
   @Test
-  void findAll() {
+  void whenfindAllThenReturnListOfUsers() {
+    when(repository.findAll()).thenReturn(List.of(user));
+
+    List<User> response = service.findAll();
+
+    assertNotNull(response);
+    assertEquals(1, response.size());
+    assertEquals(User.class, response.get(0).getClass());
+    assertEquals(ID, response.get(0).getId());
+    assertEquals(NAME, response.get(0).getName());
+    assertEquals(EMAIL, response.get(0).getEmail());
+    assertEquals(PASSWORD, response.get(0).getPassword());
+
   }
 
   @Test

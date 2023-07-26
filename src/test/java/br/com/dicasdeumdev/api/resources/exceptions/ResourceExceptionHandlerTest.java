@@ -1,5 +1,6 @@
 package br.com.dicasdeumdev.api.resources.exceptions;
 
+import br.com.dicasdeumdev.api.services.exceptions.DataIntegrityViolationException;
 import br.com.dicasdeumdev.api.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class ResourceExceptionHandlerTest {
@@ -40,5 +40,16 @@ class ResourceExceptionHandlerTest {
 
   @Test
   void dataIntegrityViolationException() {
+    ResponseEntity<StandardError> response = exceptionHandler
+            .DataIntegrityViolationException(new DataIntegrityViolationException("E-mail já cadastrado no sistema."),
+                    new MockHttpServletRequest());
+
+    assertNotNull(response);
+    assertNotNull(response.getBody());
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals(ResponseEntity.class, response.getClass());
+    assertEquals(StandardError.class, response.getBody().getClass());
+    assertEquals("E-mail já cadastrado no sistema.", response.getBody().getError());
+    assertEquals(400, response.getBody().getStatus());
   }
 }
